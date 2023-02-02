@@ -37,11 +37,43 @@ class GoogleTable:
         googlesheet_client: pygsheets.client.Client = self._get_googlesheet_client()
         wks: pygsheets.Spreadsheet = self._get_googlesheet_by_url(googlesheet_client)
         res = []
+        day_week = {
+            0:"пн",
+            1:"вт",
+            2:"ср",
+            3:"чт",
+            4:"пт",
+            5:"сб",
+            6:"вс",
+        }
+        day_of_week = day_week[datetime.today().weekday()]
+        try:
+            find_cell = wks.find(day_of_week, matchEntireCell=False, cols=(search_col1, search_col1))
+            for cell in find_cell:
+                    try:
+                        find_cell_tasks = wks.find(time, matchEntireCell=True,cols=(search_col2, search_col2),rows=(cell.row, cell.row))
+                        if not len(find_cell_tasks):
+                            wks.update_value((cell.row, task_send_col), "Нет")
+                        for task in find_cell_tasks:
+                            find_cell_row = task.row
+                            task_send = wks.get_value((find_cell_row, task_send_col))
+                            if task_send != "Да":
+                                task_col_res = wks.get_value((find_cell_row, task_col))
+                                executor_col_res = wks.get_value((find_cell_row, executor_col))
+                                deadline_time_col_res = wks.get_value((find_cell_row, deadline_time_col))
+                                res.append(list((task_col_res, executor_col_res, deadline_time_col_res, 1)))
+                                wks.update_value((find_cell_row, task_send_col), "Да")
+                    except Exception as e:
+                        print('continue, Exception=', e)
+
+        except Exception as e:
+            print('continue, Exception=', e)
+
         try:
             find_cell = wks.find(date, matchEntireCell=True, cols=(search_col1, search_col1))
             for cell in find_cell:
                 try:
-                    future_hours=(datetime.now() + timedelta(hours=1)).strftime('%H:%M') # +1 hour to now hour
+                    futue_hours=(datetime.now() + timedelta(hours=1)).strftime('%H:%M') # +1 hour to now hour
                     find_cell_tasks_reminder = wks.find(future_hours, matchEntireCell=False, cols=(deadline_time_col, deadline_time_col), rows=(cell.row, cell.row))
 
                     for task in find_cell_tasks_reminder:
@@ -65,7 +97,6 @@ class GoogleTable:
                     for task in find_cell2:
                         find_cell_row = task.row
                         task_send = wks.get_value((find_cell_row, task_send_col))
-                        reminder = wks.get_value((find_cell_row, reminder_col))
                         if task_send != "Да":
                             task_col_res = wks.get_value((find_cell_row, task_col))
                             executor_col_res = wks.get_value((find_cell_row, executor_col))
