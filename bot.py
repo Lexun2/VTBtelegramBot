@@ -46,12 +46,12 @@ async def om_message(message: types.Message):
             # await bot.send_message(-892844494, f"{values[0]} {values[1]} {values[2]} ")
             task_col: str =values[0]
             executor_col: str =values[1]
-            deadline_time_col: str =values[2]
+            deadline_time_col: str ="Время сдачи: "+values[2] if values[2] != "" else ""
             task_type: int = values[3]
             if task_type == 1:
-                message:  str = f'{executor_col}\nНеобходимо: {task_col}\nВремя готовности: {deadline_time_col}'
+                message:  str = f'{executor_col}\nНеобходимо: {task_col}\n{deadline_time_col}'
             else:
-                message:  str = f'{executor_col}\nНапоминаю: {task_col}\nВремя сдачи: {deadline_time_col}'
+                message:  str = f'{executor_col}\nНапоминаю: {task_col}\n{deadline_time_col}'
 
             try:
                 await bot.send_message(-892844494, message)
