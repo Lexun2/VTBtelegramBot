@@ -53,16 +53,17 @@ class GoogleTable:
                     try:
                         find_cell_tasks = wks.find(time, matchEntireCell=True,cols=(search_col2, search_col2),rows=(cell.row, cell.row))
                         if not len(find_cell_tasks):
-                            wks.update_value((cell.row, task_send_col), "Нет")
+                            wks.update_value((cell.row, task_send_col), "")
                         for task in find_cell_tasks:
                             find_cell_row = task.row
                             task_send = wks.get_value((find_cell_row, task_send_col))
-                            if task_send != "Да":
+                            if task_send == "":
                                 task_col_res = wks.get_value((find_cell_row, task_col))
                                 executor_col_res = wks.get_value((find_cell_row, executor_col))
                                 deadline_time_col_res = wks.get_value((find_cell_row, deadline_time_col))
-                                res.append(list((task_col_res, executor_col_res, deadline_time_col_res, 1)))
-                                wks.update_value((find_cell_row, task_send_col), "Да")
+                                if executor_col_res != "" and task_col_res != "":
+                                    res.append(list((task_col_res, executor_col_res, deadline_time_col_res, 1)))
+                                    wks.update_value((find_cell_row, task_send_col), "Да")
                     except Exception as e:
                         print('continue, Exception=', e)
 
@@ -80,13 +81,14 @@ class GoogleTable:
                         find_cell_row = task.row
                         task_send = wks.get_value((find_cell_row, task_send_col))
                         reminder = wks.get_value((find_cell_row, reminder_col))
-                        if task_send == "Да" and reminder != "Да":
+                        if task_send == "Да" and reminder == "":
                             find_cell_row = task.row
                             task_col_res = wks.get_value((find_cell_row, task_col))
                             executor_col_res = wks.get_value((find_cell_row, executor_col))
                             deadline_time_col_res = wks.get_value((find_cell_row, deadline_time_col))
-                            res.append(list((task_col_res, executor_col_res, deadline_time_col_res, 2)))
-                            wks.update_value((find_cell_row, reminder_col), "Да")
+                            if executor_col_res != "" and task_col_res != "":
+                                res.append(list((task_col_res, executor_col_res, deadline_time_col_res, 2)))
+                                wks.update_value((find_cell_row, reminder_col), "Да")
 
 
                 except Exception as e:
@@ -97,12 +99,13 @@ class GoogleTable:
                     for task in find_cell2:
                         find_cell_row = task.row
                         task_send = wks.get_value((find_cell_row, task_send_col))
-                        if task_send != "Да":
+                        if task_send == "":
                             task_col_res = wks.get_value((find_cell_row, task_col))
                             executor_col_res = wks.get_value((find_cell_row, executor_col))
                             deadline_time_col_res = wks.get_value((find_cell_row, deadline_time_col))
-                            res.append(list((task_col_res, executor_col_res, deadline_time_col_res, 1)))
-                            wks.update_value((find_cell_row, task_send_col),"Да")
+                            if executor_col_res != "" and task_col_res != "":
+                                res.append(list((task_col_res, executor_col_res, deadline_time_col_res, 1)))
+                                wks.update_value((find_cell_row, task_send_col),"Да")
 
                 except Exception as e:
                     print('continue, Exception=',e)

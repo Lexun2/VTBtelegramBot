@@ -48,7 +48,6 @@ async def om_message(message: types.Message):
             executor_col: str =values[1]
             deadline_time_col: str =values[2]
             task_type: int = values[3]
-            print(task_type)
             if task_type == 1:
                 message:  str = f'{executor_col}\nНеобходимо: {task_col}\nВремя готовности: {deadline_time_col}'
             else:
@@ -60,7 +59,7 @@ async def om_message(message: types.Message):
             except Exception as send_error:
                   logger.debug(f"{message.text}: Trouble id: {message.from_user.id}")
                   return
-        await asyncio.sleep(2)
+        await asyncio.sleep(5)
 
 
 
