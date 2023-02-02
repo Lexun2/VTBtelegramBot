@@ -73,7 +73,7 @@ class GoogleTable:
             find_cell = wks.find(date, matchEntireCell=True, cols=(search_col1, search_col1))
             for cell in find_cell:
                 try:
-                    futue_hours=(datetime.now() + timedelta(hours=1)).strftime('%H:%M') # +1 hour to now hour
+                    future_hours=(datetime.now() + timedelta(hours=1)).strftime('%H:%M') # +1 hour to now hour
                     find_cell_tasks_reminder = wks.find(future_hours, matchEntireCell=False, cols=(deadline_time_col, deadline_time_col), rows=(cell.row, cell.row))
 
                     for task in find_cell_tasks_reminder:
