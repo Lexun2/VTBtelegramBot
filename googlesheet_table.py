@@ -6,7 +6,15 @@ class GoogleTable:
     def __init__(self, credense_service_file: str="", googlesheet_file_url: str="") -> None:
         self.credense_service_file=credense_service_file
         self.googlesheet_file_url=googlesheet_file_url
-
+        self.search_col1: int = 2
+        self.search_col2: int = 3
+        self.executor_col: int = 4
+        self.task_col: int = 5
+        self.deadline_time_col: int = 6
+        self.task_send_col: int = 7
+        self.task_result_col: int = 8
+        self.reminder_col: int = 9
+        self.id_message_col: int = 10
     def _get_googlesheet_by_url(
             self, googlesheet_client: pygsheets.client.Client) -> pygsheets.Spreadsheet:
         """Get Google.Docs Table sheet by document url"""
@@ -22,44 +30,60 @@ class GoogleTable:
         )
 
     def update_id_message(self, row, msg_id):
-        id_message_col: int = 10
+        id_message_col = self.id_message_col
         googlesheet_client: pygsheets.client.Client = self._get_googlesheet_client()
         wks: pygsheets.Spreadsheet = self._get_googlesheet_by_url(googlesheet_client)
         try:
             wks.update_value((row, id_message_col), msg_id)
         except:
-            pass
+            print("Неудачно обновили поле id в гугл таблице")
+
+    def update_status_task(self,row):
+        task_result_col = self.task_result_col
+        googlesheet_client: pygsheets.client.Client = self._get_googlesheet_client()
+        wks: pygsheets.Spreadsheet = self._get_googlesheet_by_url(googlesheet_client)
+        try:
+            wks.update_value((row, task_result_col), "Готово")
+        except:
+            print("Неудачно обновили поле Результат в гугл таблице")
 
 
-    # def find_tsk_by_id(self,id):
-    #     id_message_col: int = 10
-    #     googlesheet_client: pygsheets.client.Client = self._get_googlesheet_client()
-    #     wks: pygsheets.Spreadsheet = self._get_googlesheet_by_url(googlesheet_client)
-    #     try:
-    #         find_cell = wks.find(id, matchEntireCell=False, cols=(id_message_col, id_message_col))
-    #
-    #
-    #
-    #     except:
-    #         pass
+    def find_task_by_id(self,id):
+        id_message_col = self.id_message_col
+        executor_col = self.executor_col
+        task_col = self.task_col
+        deadline_time_col = self.deadline_time_col
+        googlesheet_client: pygsheets.client.Client = self._get_googlesheet_client()
+        wks: pygsheets.Spreadsheet = self._get_googlesheet_by_url(googlesheet_client)
+        try:
+            find_cell_id = wks.find(str(id), matchEntireCell=True, cols=(id_message_col, id_message_col))
+            if len(find_cell_id) != 1 : return -1
+            executor_col_res = wks.get_value((find_cell_id[0].row, executor_col))
+            task_col_res = wks.get_value((find_cell_id[0].row, task_col))
+            deadline_time_col_res = wks.get_value((find_cell_id[0].row, deadline_time_col))
+
+            return find_cell_id[0].row, executor_col_res, task_col_res, deadline_time_col_res
+        except:
+            print("Неудачно совершили поиск id в гугл таблице")
 
 
 
     def search_task_by_time(self,
                             date: str ="",
                             time: str="",
-                            search_col1: int = 2,
-                            search_col2: int = 3,
-                            executor_col: int = 4,
-                            task_col: int = 5,
-                            deadline_time_col: int = 6,
-                            task_send_col: int = 7,
-                            reminder_col: int = 9,
+
                             ):
         """Поиск задачи и пересыл его в чат, если настало нужное время"""
 
         googlesheet_client: pygsheets.client.Client = self._get_googlesheet_client()
         wks: pygsheets.Spreadsheet = self._get_googlesheet_by_url(googlesheet_client)
+        search_col1 = self.search_col1
+        search_col2 = self.search_col2
+        executor_col = self.executor_col
+        task_col = self.task_col
+        deadline_time_col = self.deadline_time_col
+        task_send_col = self.task_send_col
+        reminder_col = self.reminder_col
         res = []
         day_week = {
             0:"пн",
@@ -89,10 +113,10 @@ class GoogleTable:
                                     res.append(list((task.row, task_col_res, executor_col_res, deadline_time_col_res, 1)))
                                     wks.update_value((find_cell_row, task_send_col), "Да")
                     except Exception as e:
-                        print('continue, Exception=', e)
+                        print('3continue, Exception=', e)
 
         except Exception as e:
-            print('continue, Exception=', e)
+            print('0continue, Exception=', e)
 
         try:
             find_cell = wks.find(date, matchEntireCell=True, cols=(search_col1, search_col1))
@@ -116,7 +140,7 @@ class GoogleTable:
 
 
                 except Exception as e:
-                    print('continue, Exception=',e)
+                    print('1continue, Exception=',e)
 
                 try:
                     find_cell2 = wks.find(time, matchEntireCell=True, cols=(search_col2, search_col2), rows=(cell.row, cell.row))
@@ -133,7 +157,7 @@ class GoogleTable:
 
 
                 except Exception as e:
-                    print('continue, Exception=',e)
+                    print('2continue, Exception=',e)
                     continue
             return res if len(res) else -1
         except:

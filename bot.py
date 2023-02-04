@@ -63,11 +63,19 @@ async def om_message(message: types.Message):
 
 @dp.message_handler()
 async def reply_message(message: types.Message):
-    if message.reply_to_message: # Если полученное сообщение является реплаем
-       #if message.from_user.id == who_id: # И сообщение от определённого пользователя
-       pass
-       # if message.reply_to_message.id == some_mess_id: pass
-
+    if message.reply_to_message:  # Если полученное сообщение является реплаем
+       values_row = bot._google_table.find_task_by_id(message.reply_to_message.message_id)
+       if values_row != -1 and message.text.lower().replace("!","").replace(".","").strip() == "готово" or \
+       ("выполн" in message.text.lower().replace("!","").replace(".","").strip()    and \
+        "не " not in message.text.lower().replace("!","").replace(".","").strip()       and \
+        "нев" not in message.text.lower().replace("!","").replace(".","").strip()):
+           row_task = values_row[0]
+           execut = values_row[1]
+           task = values_row[2]
+           deadline = values_row[3]
+           # await bot.send_message(-892844494, f"Молодцы, задача:\n{row_task},\nгде исполнитель: {execut}\nВыполнена!")
+           await bot.send_message(-892844494, f"Молодец {message.from_user.first_name}\nЗадача: {task},\nвыполнена!")
+           bot._google_table.update_status_task(row_task)
 
 if __name__ == "__main__" :
     executor.start_polling(dp,skip_updates=True)
