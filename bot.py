@@ -26,7 +26,7 @@ class TelegramBot(Bot):
 bot = TelegramBot(
     token=config.settings["TOKEN"],
     parse_mode=types.ParseMode.HTML,
-    google_table=GoogleTable("creds.json", "https://docs.google.com/spreadsheets/d/1eFdCh0JD9BZNnAUTcz3HMosJFUIONj85gg8kO83Hvgc"),  )
+    google_table=GoogleTable(config.settings["CREDS_FILE"], config.settings["URL_GOOGLE_TABLE"]))
 dp = Dispatcher(bot)
 
 @dp.message_handler(commands=['start','старт'])
