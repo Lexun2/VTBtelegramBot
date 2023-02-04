@@ -38,12 +38,10 @@ async def om_message(message: types.Message):
         time=datetime.now().strftime('%H:%M')
 
         result: list = bot._google_table.search_task_by_time(date,time)
-        # await bot.send_message(-892844494, f"{date} {time}")
         if result == -1 or result==None:
             pass
         else:
           for values in result:
-            # await bot.send_message(-892844494, f"{values[0]} {values[1]} {values[2]} ")
             task_col: str =values[0]
             executor_col: str =values[1]
             deadline_time_col: str ="Время сдачи: "+values[2] if values[2] != "" else ""
@@ -60,22 +58,6 @@ async def om_message(message: types.Message):
                   logger.debug(f"{message.text}: Trouble id: {message.from_user.id}")
                   return
         await asyncio.sleep(5)
-
-
-
-
-# @dp.message_handler(filters.Regexp(regexp=r"(((Р|р)асписание)(\s)(взрослые))"))
-# async def schedule_adults_handler(message_from: types.Message) -> None:
-#   user_id: str = str(message_from.from_id)
-#   text_msg: str = message_from.md_text.strip(" @#")
-#   command:str = text_msg.lower()
-#   print(f"Вход: команда '{command}'")
-#   try:
-#     with open('res/timetable.jpg', 'rb') as photo:
-#         await bot.send_photo(user_id, photo)
-#   except Exception as send_error:
-#     logger.debug(f"{send_error.message}: Trouble id: {user_id}")
-#     return
 
 
 if __name__ == "__main__" :
