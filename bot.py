@@ -31,7 +31,7 @@ dp = Dispatcher(bot)
 
 @dp.message_handler(commands=['start','старт'])
 async def om_message(message: types.Message):
-    await bot.send_message(message.from_user.id,f"Привет {message.from_user.first_name} {message.from_user.last_name}, я бот. Начинаю оповещать группу о задачах.")
+    msg = await bot.send_message(message.from_user.id,f"Привет {message.from_user.first_name} {message.from_user.last_name}, я бот. Начинаю оповещать группу о задачах.")
 
     while True:
         date=datetime.now().strftime('%d.%m.%Y')
@@ -42,22 +42,31 @@ async def om_message(message: types.Message):
             pass
         else:
           for values in result:
-            task_col: str =values[0]
-            executor_col: str =values[1]
-            deadline_time_col: str ="Время сдачи: "+values[2] if values[2] != "" else ""
-            task_type: int = values[3]
+            row: int = values[0]
+            task_col: str = values[1]
+            executor_col: str = values[2]
+            deadline_time_col: str ="Время сдачи: "+values[3] if values[3] != "" else ""
+            task_type: int = values[4]
             if task_type == 1:
-                message:  str = f'{executor_col}\nНеобходимо: {task_col}\n{deadline_time_col}'
+                text_message:  str = f'{executor_col}\nНеобходимо: {task_col}\n{deadline_time_col}'
             else:
-                message:  str = f'{executor_col}\nНапоминаю: {task_col}\n{deadline_time_col}'
+                text_message:  str = f'{executor_col}\nНапоминаю: {task_col}\n{deadline_time_col}'
 
             try:
-                await bot.send_message(-892844494, message)
+                msg = await bot.send_message(-892844494, text_message)
+                bot._google_table.update_id_message(row, msg.message_id)
 
             except Exception as send_error:
-                  logger.debug(f"{message.text}: Trouble id: {message.from_user.id}")
+                  logger.debug(f"{send_error}")
                   return
         await asyncio.sleep(5)
+
+@dp.message_handler()
+async def reply_message(message: types.Message):
+    if message.reply_to_message: # Если полученное сообщение является реплаем
+       #if message.from_user.id == who_id: # И сообщение от определённого пользователя
+       pass
+       # if message.reply_to_message.id == some_mess_id: pass
 
 
 if __name__ == "__main__" :

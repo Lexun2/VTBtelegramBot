@@ -21,6 +21,30 @@ class GoogleTable:
             service_file=self.credense_service_file
         )
 
+    def update_id_message(self, row, msg_id):
+        id_message_col: int = 10
+        googlesheet_client: pygsheets.client.Client = self._get_googlesheet_client()
+        wks: pygsheets.Spreadsheet = self._get_googlesheet_by_url(googlesheet_client)
+        try:
+            wks.update_value((row, id_message_col), msg_id)
+        except:
+            pass
+
+
+    # def find_tsk_by_id(self,id):
+    #     id_message_col: int = 10
+    #     googlesheet_client: pygsheets.client.Client = self._get_googlesheet_client()
+    #     wks: pygsheets.Spreadsheet = self._get_googlesheet_by_url(googlesheet_client)
+    #     try:
+    #         find_cell = wks.find(id, matchEntireCell=False, cols=(id_message_col, id_message_col))
+    #
+    #
+    #
+    #     except:
+    #         pass
+
+
+
     def search_task_by_time(self,
                             date: str ="",
                             time: str="",
@@ -62,7 +86,7 @@ class GoogleTable:
                                 executor_col_res = wks.get_value((find_cell_row, executor_col))
                                 deadline_time_col_res = wks.get_value((find_cell_row, deadline_time_col))
                                 if executor_col_res != "" and task_col_res != "":
-                                    res.append(list((task_col_res, executor_col_res, deadline_time_col_res, 1)))
+                                    res.append(list((task.row, task_col_res, executor_col_res, deadline_time_col_res, 1)))
                                     wks.update_value((find_cell_row, task_send_col), "Да")
                     except Exception as e:
                         print('continue, Exception=', e)
@@ -87,7 +111,7 @@ class GoogleTable:
                             executor_col_res = wks.get_value((find_cell_row, executor_col))
                             deadline_time_col_res = wks.get_value((find_cell_row, deadline_time_col))
                             if executor_col_res != "" and task_col_res != "":
-                                res.append(list((task_col_res, executor_col_res, deadline_time_col_res, 2)))
+                                res.append(list((task.row, task_col_res, executor_col_res, deadline_time_col_res, 2)))
                                 wks.update_value((find_cell_row, reminder_col), "Да")
 
 
@@ -104,8 +128,9 @@ class GoogleTable:
                             executor_col_res = wks.get_value((find_cell_row, executor_col))
                             deadline_time_col_res = wks.get_value((find_cell_row, deadline_time_col))
                             if executor_col_res != "" and task_col_res != "":
-                                res.append(list((task_col_res, executor_col_res, deadline_time_col_res, 1)))
+                                res.append(list((task.row, task_col_res, executor_col_res, deadline_time_col_res, 1)))
                                 wks.update_value((find_cell_row, task_send_col),"Да")
+
 
                 except Exception as e:
                     print('continue, Exception=',e)
